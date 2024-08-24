@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("maven-publish")
 }
 
 android {
@@ -41,10 +42,25 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.google.android.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+}
+
+afterEvaluate {
+    configure<PublishingExtension> {
+        publications {
+            create<MavenPublication>("debug") {
+                from(components["debug"])
+
+                groupId = "com.github.mojise.ax-logger" // 깃허브 이름
+                artifactId = "ax-logger" // 공개할 라이브러리의 이름
+                version = "0.0.1-beta" // 버전
+            }
+            create<MavenPublication>("release") {
+                from(components["release"])
+
+                groupId = "com.github.mojise.ax-logger" // 깃허브 이름
+                artifactId = "ax-logger" // 공개할 라이브러리의 이름
+                version = "0.0.1-beta" // 버전
+            }
+        }
+    }
 }

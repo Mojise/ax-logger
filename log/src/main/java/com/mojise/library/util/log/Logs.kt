@@ -1,6 +1,5 @@
 package com.mojise.library.util.log
 
-import androidx.annotation.IntRange
 import com.mojise.library.util.log.Logger.Level.*
 
 object Logs {
