@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ax-library-util-log"
 include(":app")
- 
+include(":log")
