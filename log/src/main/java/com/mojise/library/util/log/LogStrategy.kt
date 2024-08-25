@@ -3,13 +3,23 @@ package com.mojise.library.util.log
 internal data class LogStrategy (
     val isEnabled: Boolean,
     val tag: String?,
-    val logStyle: LogStyle,
+    val defaultLogType: LogStyle.Type,
+    val boxLogStyle: LogStyle.Box,
+    val simpleLogStyle: LogStyle.Simple,
 ) {
+    val defaultLogStyle: LogStyle
+        get() = when (defaultLogType) {
+            LogStyle.Type.BOX -> boxLogStyle
+            LogStyle.Type.SIMPLE -> simpleLogStyle
+        }
+
     companion object {
-        val DEFAULT = LogStrategy(
+        val Default = LogStrategy(
             isEnabled = false,
             tag = null,
-            logStyle = LogStyle.Box.DEFAULT,
+            defaultLogType = LogStyle.Type.BOX,
+            boxLogStyle = LogStyle.Box.Default,
+            simpleLogStyle = LogStyle.Simple.Default,
         )
     }
 }

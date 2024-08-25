@@ -12,13 +12,18 @@ internal object Logger {
         level: Level,
         strategy: LogStrategy,
         message: Any?,
+        throwable: Throwable? = null,
     ) {
         if (strategy.isEnabled.not()) {
             return
         }
 
         val logTag = strategy.tag ?: LogMessageGenerator.generateTag()
-        val logMessage = LogMessageGenerator.generateMessage(strategy.logStyle, message)
+        val logMessage = LogMessageGenerator.generateMessage(
+            style = strategy.defaultLogStyle,
+            message = message,
+            throwable = throwable,
+        )
 
         when (level) {
             Level.VERBOSE -> Log.v(logTag, logMessage)

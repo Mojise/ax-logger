@@ -4,153 +4,171 @@ import com.mojise.library.util.log.Logger.Level.*
 
 object Logs {
 
-    private var GlobalLogStrategy: LogStrategy = LogStrategy.DEFAULT
+    private var GlobalLogStrategy: LogStrategy = LogStrategy.Default
 
     @JvmStatic
-    fun boxStyle() = LogStrategyComposer(
-        strategy = GlobalLogStrategy.copy(logStyle = LogStyle.Box.DEFAULT)
+    fun boxStyle() = newLogStrategyComposer(logType = LogStyle.Type.BOX)
+
+    @JvmStatic
+    fun simpleStyle() = newLogStrategyComposer(logType = LogStyle.Type.SIMPLE)
+
+    @JvmStatic
+    fun visibleForced() = newLogStrategyComposer(isEnabled = true)
+
+    @JvmStatic
+    fun withThreadInfo() = newLogStrategyComposer(isShowThreadInfo = true)
+    @JvmStatic
+    fun withoutThreadInfo() = newLogStrategyComposer(isShowThreadInfo = false)
+
+    @JvmStatic
+    @JvmOverloads
+    fun withMethodStackTrace(count: Int = Int.MAX_VALUE) =
+        newLogStrategyComposer(isShowMethodStackTrace = true, showingMethodStackCount = count)
+    @JvmStatic
+    fun withoutMethodStackTrace() = newLogStrategyComposer(isShowMethodStackTrace = false)
+
+    @JvmStatic
+    fun tag(tag: String) = newLogStrategyComposer(tag = tag)
+
+    private fun newLogStrategyComposer(
+        strategy: LogStrategy = GlobalLogStrategy,
+        isEnabled: Boolean = strategy.isEnabled,
+        tag: String? = strategy.tag,
+        logType: LogStyle.Type = strategy.defaultLogType,
+        isShowThreadInfo: Boolean = when (logType) {
+            LogStyle.Type.BOX -> strategy.boxLogStyle.isShowThreadInfo
+            LogStyle.Type.SIMPLE -> strategy.simpleLogStyle.isShowThreadInfo
+        },
+        isShowMethodStackTrace: Boolean = when (logType) {
+            LogStyle.Type.BOX -> strategy.boxLogStyle.isShowMethodStackTrace
+            LogStyle.Type.SIMPLE -> strategy.simpleLogStyle.isShowMethodStackTrace
+        },
+        showingMethodStackCount: Int = when (logType) {
+            LogStyle.Type.BOX -> strategy.boxLogStyle.showingMethodStackCount
+            LogStyle.Type.SIMPLE -> strategy.simpleLogStyle.showingMethodStackCount
+        },
+    ): LogStrategyComposer = LogStrategyComposer(
+        strategy.copy(
+            isEnabled = isEnabled,
+            tag = tag,
+            defaultLogType = logType,
+            boxLogStyle = when (logType) {
+                LogStyle.Type.BOX -> strategy.boxLogStyle.copy(
+                    isShowThreadInfo = isShowThreadInfo,
+                    isShowMethodStackTrace = isShowMethodStackTrace,
+                    showingMethodStackCount = showingMethodStackCount
+                )
+                LogStyle.Type.SIMPLE -> strategy.boxLogStyle
+            },
+            simpleLogStyle = when (logType) {
+                LogStyle.Type.BOX -> strategy.simpleLogStyle
+                LogStyle.Type.SIMPLE -> strategy.simpleLogStyle.copy(
+                    isShowThreadInfo = isShowThreadInfo,
+                    isShowMethodStackTrace = isShowMethodStackTrace,
+                    showingMethodStackCount = showingMethodStackCount
+                )
+            },
+        )
     )
 
-    @JvmStatic
-    fun simpleStyle() = LogStrategyComposer(
-        strategy = GlobalLogStrategy.copy(logStyle = LogStyle.Simple.DEFAULT)
-    )
+    @JvmStatic fun v()                                              = Logger.log(VERBOSE, GlobalLogStrategy, "")
+    @JvmStatic fun v(message: Any?)                                 = Logger.log(VERBOSE, GlobalLogStrategy, message)
+    @JvmStatic fun v(format: String, vararg args: Any)              = Logger.log(VERBOSE, GlobalLogStrategy, format.format(*args))
 
-    @JvmStatic
-    fun visibleAlways() = LogStrategyComposer(strategy = GlobalLogStrategy.copy(isEnabled = true))
+    @JvmStatic fun d()                                              = Logger.log(DEBUG, GlobalLogStrategy, "")
+    @JvmStatic fun d(message: Any?)                                 = Logger.log(DEBUG, GlobalLogStrategy, message)
+    @JvmStatic fun d(format: String, vararg args: Any)              = Logger.log(DEBUG, GlobalLogStrategy, format.format(*args))
 
-    @JvmStatic
-    fun withThreadInfo() = when (val logStyle = GlobalLogStrategy.logStyle) {
-        is LogStyle.Box -> LogStrategyComposer(GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowThreadInfo = true)))
-        is LogStyle.Simple -> LogStrategyComposer(GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowThreadInfo = true)))
-    }
+    @JvmStatic fun i()                                              = Logger.log(INFO, GlobalLogStrategy, "")
+    @JvmStatic fun i(message: Any?)                                 = Logger.log(INFO, GlobalLogStrategy, message)
+    @JvmStatic fun i(format: String, vararg args: Any)              = Logger.log(INFO, GlobalLogStrategy, format.format(*args))
 
-    @JvmStatic
-    fun withMethodStackTrace(count: Int = Int.MAX_VALUE) = when (val logStyle = GlobalLogStrategy.logStyle) {
-        is LogStyle.Box -> LogStrategyComposer(GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowMethodStackTrace = true, methodStackTraceCount = count)))
-        is LogStyle.Simple -> LogStrategyComposer(GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowMethodStackTrace = true, methodStackTraceCount = count)))
-    }
+    @JvmStatic fun w()                                              = Logger.log(WARN, GlobalLogStrategy, "")
+    @JvmStatic fun w(message: Any?)                                 = Logger.log(WARN, GlobalLogStrategy, message)
+    @JvmStatic fun w(format: String, vararg args: Any)              = Logger.log(WARN, GlobalLogStrategy, format.format(*args))
 
-    @JvmStatic
-    fun tag(tag: String) = LogStrategyComposer(GlobalLogStrategy)
+    @JvmStatic fun e()                                              = Logger.log(ERROR, GlobalLogStrategy, "")
+    @JvmStatic fun e(message: Any?)                                 = Logger.log(ERROR, GlobalLogStrategy, message)
+    @JvmStatic fun e(format: String, vararg args: Any)              = Logger.log(ERROR, GlobalLogStrategy, format.format(*args))
 
-    @JvmStatic
-    @JvmOverloads
-    fun v(message: Any? = "") = Logger.log(VERBOSE, GlobalLogStrategy, message)
-    @JvmStatic
-    fun v(format: String, vararg args: Any) = Logger.log(VERBOSE, GlobalLogStrategy, format.format(*args))
-
-    @JvmStatic
-    @JvmOverloads
-    fun d(message: Any? = "") = Logger.log(DEBUG, GlobalLogStrategy, message)
-    @JvmStatic
-    fun d(format: String, vararg args: Any) = Logger.log(DEBUG, GlobalLogStrategy, format.format(*args))
-
-    @JvmStatic
-    @JvmOverloads
-    fun i(message: Any? = "") = Logger.log(INFO, GlobalLogStrategy, message)
-    @JvmStatic
-    fun i(format: String, vararg args: Any) = Logger.log(INFO, GlobalLogStrategy, format.format(*args))
-
-    @JvmStatic
-    @JvmOverloads
-    fun w(message: Any? = "") = Logger.log(WARN, GlobalLogStrategy, message)
-    @JvmStatic
-    fun w(format: String, vararg args: Any) = Logger.log(WARN, GlobalLogStrategy, format.format(*args))
-
-    @JvmStatic
-    @JvmOverloads
-    fun e(message: Any? = "") = Logger.log(ERROR, GlobalLogStrategy, message)
-    @JvmStatic
-    fun e(format: String, vararg args: Any) = Logger.log(ERROR, GlobalLogStrategy, format.format(*args))
+    @JvmStatic fun throwable(throwable: Throwable)                  = Logger.log(WARN, GlobalLogStrategy, message = "", throwable = throwable)
+    @JvmStatic fun throwable(message: String, throwable: Throwable) = Logger.log(WARN, GlobalLogStrategy, message, throwable)
 
     object GlobalLogStrategyComposer {
 
+        private var newStrategy: LogStrategy? = null
+
+        @JvmStatic
+        fun init() = apply {
+            newStrategy = GlobalLogStrategy.copy()
+        }
+
         @JvmStatic
         fun isVisible(enabled: Boolean) = apply {
-            GlobalLogStrategy = GlobalLogStrategy.copy(isEnabled = enabled)
+            newStrategy = newStrategy!!.copy(isEnabled = enabled)
         }
 
         @JvmStatic
-        fun boxStyle() = apply {
-            GlobalLogStrategy = GlobalLogStrategy.copy(logStyle = LogStyle.Box.DEFAULT)
+        fun setGlobalLogTag(tag: String) = apply {
+            newStrategy = newStrategy!!.copy(tag = tag)
         }
 
         @JvmStatic
-        fun simpleStyle() = apply {
-            GlobalLogStrategy = GlobalLogStrategy.copy(logStyle = LogStyle.Simple.DEFAULT)
+        fun setDefaultLogStyle(logType: LogStyle.Type) = apply {
+            newStrategy = newStrategy!!.copy(defaultLogType = logType)
         }
 
         @JvmStatic
-        fun withThreadInfo() = apply {
-            GlobalLogStrategy = when (val logStyle = GlobalLogStrategy.logStyle) {
-                is LogStyle.Box -> GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowThreadInfo = true))
-                is LogStyle.Simple -> GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowThreadInfo = true))
-            }
+        fun setBoxLogStyle(boxLogStyle: LogStyle.Box) = apply {
+            newStrategy = newStrategy!!.copy(boxLogStyle = boxLogStyle)
         }
 
-        @JvmStatic
-        fun withMethodStackTrace(count: Int) = apply {
-            GlobalLogStrategy = when (val logStyle = GlobalLogStrategy.logStyle) {
-                is LogStyle.Box -> GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowMethodStackTrace = true, methodStackTraceCount = count))
-                is LogStyle.Simple -> GlobalLogStrategy.copy(logStyle = logStyle.copy(isShowMethodStackTrace = true, methodStackTraceCount = count))
-            }
-        }
-
-        @JvmStatic
-        fun withGlobalCustomTag(tag: String) = apply {
-            GlobalLogStrategy = GlobalLogStrategy.copy(tag = tag)
+        fun setSimpleLogStyle(simpleLogStyle: LogStyle.Simple) = apply {
+            newStrategy = newStrategy!!.copy(simpleLogStyle = simpleLogStyle)
         }
 
         @JvmStatic
         fun apply() {
-
+            GlobalLogStrategy = newStrategy!!
+            newStrategy = null
         }
     }
 
     class LogStrategyComposer internal constructor(
         private var strategy: LogStrategy
     ) {
-        fun visibleAlways() = apply {
-            strategy = strategy.copy(isEnabled = true)
-        }
+        fun visibleForced() = newLogStrategyComposer(strategy = strategy, isEnabled = true)
 
-        fun withThreadInfo() = apply {
-            strategy = when (val logStyle = strategy.logStyle) {
-                is LogStyle.Box -> strategy.copy(logStyle = logStyle.copy(isShowThreadInfo = true))
-                is LogStyle.Simple -> strategy.copy(logStyle = logStyle.copy(isShowThreadInfo = true))
-            }
-        }
-
-        fun withMethodStackTrace(count: Int) = apply {
-            strategy = when (val logStyle = strategy.logStyle) {
-                is LogStyle.Box -> strategy.copy(logStyle = logStyle.copy(isShowMethodStackTrace = true, methodStackTraceCount = count))
-                is LogStyle.Simple -> strategy.copy(logStyle = logStyle.copy(isShowMethodStackTrace = true, methodStackTraceCount = count))
-            }
-        }
-
-        fun tag(tag: String) = apply {
-            strategy = strategy.copy(tag = tag)
-        }
+        fun withThreadInfo() = newLogStrategyComposer(strategy = strategy, isShowThreadInfo = true)
+        fun withoutThreadInfo() = newLogStrategyComposer(strategy = strategy, isShowThreadInfo = false)
 
         @JvmOverloads
-        fun v(message: Any? = "") = Logger.log(VERBOSE, strategy, message)
-        fun v(format: String, vararg args: Any) = Logger.log(VERBOSE, strategy, format.format(*args))
+        fun withMethodStackTrace(count: Int = Int.MAX_VALUE) = newLogStrategyComposer(strategy = strategy, isShowMethodStackTrace = true, showingMethodStackCount = count)
+        fun withoutMethodStackTrace() = newLogStrategyComposer(strategy = strategy, isShowMethodStackTrace = false)
 
-        @JvmOverloads
-        fun d(message: Any? = "") = Logger.log(DEBUG, strategy, message)
-        fun d(format: String, vararg args: Any) = Logger.log(DEBUG, strategy, format.format(*args))
+        fun tag(tag: String) = newLogStrategyComposer(strategy = strategy, tag = tag)
 
-        @JvmOverloads
-        fun i(message: Any? = "") = Logger.log(INFO, strategy, message)
-        fun i(format: String, vararg args: Any) = Logger.log(INFO, strategy, format.format(*args))
+        fun v()                                              = Logger.log(VERBOSE, strategy, null)
+        fun v(message: Any?)                                 = Logger.log(VERBOSE, strategy, message)
+        fun v(format: String, vararg args: Any)              = Logger.log(VERBOSE, strategy, format.format(*args))
 
-        @JvmOverloads
-        fun w(message: Any? = "") = Logger.log(WARN, strategy, message)
-        fun w(format: String, vararg args: Any) = Logger.log(WARN, strategy, format.format(*args))
+        fun d()                                              = Logger.log(DEBUG, strategy, null)
+        fun d(message: Any?)                                 = Logger.log(DEBUG, strategy, message)
+        fun d(format: String, vararg args: Any)              = Logger.log(DEBUG, strategy, format.format(*args))
 
-        @JvmOverloads
-        fun e(message: Any? = "") = Logger.log(ERROR, strategy, message)
-        fun e(format: String, vararg args: Any) = Logger.log(ERROR, strategy, format.format(*args))
+        fun i()                                              = Logger.log(INFO, strategy, null)
+        fun i(message: Any?)                                 = Logger.log(INFO, strategy, message)
+        fun i(format: String, vararg args: Any)              = Logger.log(INFO, strategy, format.format(*args))
+
+        fun w()                                              = Logger.log(WARN, strategy, null)
+        fun w(message: Any?)                                 = Logger.log(WARN, strategy, message)
+        fun w(format: String, vararg args: Any)              = Logger.log(WARN, strategy, format.format(*args))
+
+        fun e()                                              = Logger.log(ERROR, strategy, null)
+        fun e(message: Any?)                                 = Logger.log(ERROR, strategy, message)
+        fun e(format: String, vararg args: Any)              = Logger.log(ERROR, strategy, format.format(*args))
+
+        fun throwable(throwable: Throwable)                  = Logger.log(WARN, strategy, message = "", throwable = throwable)
+        fun throwable(message: String, throwable: Throwable) = Logger.log(WARN, strategy, message, throwable)
     }
 }

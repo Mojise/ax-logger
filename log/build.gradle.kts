@@ -52,14 +52,14 @@ afterEvaluate {
 
                 groupId = "com.github.mojise.ax-logger" // 깃허브 이름
                 artifactId = "ax-logger" // 공개할 라이브러리의 이름
-                version = "0.0.1-beta" // 버전
+                version = "0.0.2-beta" // 버전
             }
             create<MavenPublication>("release") {
                 from(components["release"])
 
                 groupId = "com.github.mojise.ax-logger" // 깃허브 이름
                 artifactId = "ax-logger" // 공개할 라이브러리의 이름
-                version = "0.0.1-beta" // 버전
+                version = "0.0.2-beta" // 버전
             }
         }
     }
