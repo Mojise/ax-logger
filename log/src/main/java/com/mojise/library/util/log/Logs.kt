@@ -100,7 +100,7 @@ object Logs {
 
         @JvmStatic
         fun init() = apply {
-            newStrategy = GlobalLogStrategy.copy()
+            newStrategy = LogStrategy.Default
         }
 
         @JvmStatic

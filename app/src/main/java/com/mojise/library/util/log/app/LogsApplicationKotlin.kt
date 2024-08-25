@@ -18,7 +18,7 @@ class LogsApplicationKotlin : Application() {
         Logs.GlobalLogStrategyComposer.init()
             .isVisible(BuildConfig.DEBUG)
 //            .setGlobalLogTag("MyLog!!")
-//            .setDefaultLogStyle(LogStyle.Type.BOX)
+            .setDefaultLogStyle(LogStyle.Type.SIMPLE)
 //            .setBoxLogStyle(
 //                LogStyle.Box.newBuilder()
 //                    .isShowThreadInfo(true)
