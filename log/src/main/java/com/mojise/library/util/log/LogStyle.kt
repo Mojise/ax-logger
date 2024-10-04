@@ -46,6 +46,7 @@ sealed interface LogStyle {
                 showingMethodStackCount = Int.MAX_VALUE,
             )
 
+            @JvmStatic
             fun newBuilder() = Builder(Default)
         }
     }
@@ -82,6 +83,7 @@ sealed interface LogStyle {
                 showingMethodStackCount = 2,
             )
 
+            @JvmStatic
             fun newBuilder() = Builder(Default)
         }
     }

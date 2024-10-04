@@ -18,7 +18,7 @@ public class MainActivityJava extends AppCompatActivity {
 
         //Logs.d();
         Logs.d("Hello World");
-        Logs.d("Hello World a=%d, b=%d", 1);
+        Logs.format("Hello World a=%d, b=%d", 1);
 //        Logs.visibleAlways()
 //                .withThreadInfo()
 //                .withMethodStack()

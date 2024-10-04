@@ -5,8 +5,8 @@ import android.os.Process
 internal object LogMessageGenerator {
 
     private const val LOGS_LIBRARY_PACKAGE_NAME = "com.mojise.library.util.log"
-    private const val UNTIL_USER_METHOD_COUNT = 8
-    private const val HORIZONTAL_LINE_SEPARATOR_COUNT = 150
+    const val UNTIL_USER_METHOD_COUNT = 8
+    const val HORIZONTAL_LINE_SEPARATOR_COUNT = 150
 
     fun generateTag(): String {
         return Thread.currentThread().stackTrace.getOrNull(UNTIL_USER_METHOD_COUNT - 2)?.fileName ?: "Unknown"

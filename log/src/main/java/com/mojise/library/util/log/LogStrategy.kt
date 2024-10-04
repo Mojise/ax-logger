@@ -1,6 +1,6 @@
 package com.mojise.library.util.log
 
-internal data class LogStrategy (
+data class LogStrategy (
     val isEnabled: Boolean,
     val tag: String?,
     val defaultLogType: LogStyle.Type,
